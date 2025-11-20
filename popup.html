@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <!-- Header -->
+    <div class="header">
+      <h1>Text Shortcuts</h1>
+      <div class="header-actions">
+        <button class="icon-btn" id="exportBtn" title="Export/Import">📤</button>
+        <button class="icon-btn" id="searchBtn" title="Search">🔍</button>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- New Snippet Section -->
+      <div class="section">
+        <div class="section-header">
+          <h3>New Snippet</h3>
+        </div>
+        <div class="snippet-input">
+          <input type="text" id="shortcutInput" placeholder="Shortcut (e.g.: asap)" class="shortcut-input">
+          <textarea id="snippetText" placeholder="Expanded text with **bold** and *italic* formatting..." class="snippet-textarea"></textarea>
+          <div class="snippet-actions">
+            <button id="saveSnippet" class="save-btn">Save Snippet</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Templates List -->
+      <div class="section">
+        <div class="section-header">
+          <h3>Your Snippets</h3>
+          <span class="snippets-count" id="snippetsCount">0</span>
+        </div>
+        <div class="templates-list" id="templatesList">
+          <!-- Templates will be loaded here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <div class="footer-actions">
+        <button class="footer-btn" id="themeToggle">Light mode</button>
+        <button class="footer-btn" id="helpBtn">Help</button>
+      </div>
+    </div>
+
+    <!-- Search Modal -->
+    <div class="modal" id="searchModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Search Snippets</h3>
+          <button class="close-modal" id="closeSearch">×</button>
+        </div>
+        <input type="text" id="searchInput" placeholder="Type to search..." class="search-input">
+        <div class="search-results" id="searchResults"></div>
+      </div>
+    </div>
+
+    <!-- Export Modal -->
+    <div class="modal" id="exportModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Export / Import</h3>
+          <button class="close-modal" id="closeExport">×</button>
+        </div>
+        <div class="export-actions">
+          <button id="exportBtn" class="export-import-btn">Export All</button>
+          <button id="importBtn" class="export-import-btn">Import</button>
+          <input type="file" id="importFile" accept=".json" style="display: none;">
+        </div>
+        <textarea id="exportData" class="export-textarea" placeholder="Exported data will appear here..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
