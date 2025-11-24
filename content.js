@@ -63,13 +63,13 @@ class CtrlSpaceHelper {
     }
 
     async loadSettingsAndTemplates() {
-        // const settingsResult = await chrome.storage.sync.get({
+        // const settingsResult = await chrome.storage.local.get({
         //     enableHelper: true,
         //     position: 'cursor'
         // });
         // this.settings = settingsResult;
 
-        const templatesResult = await chrome.storage.sync.get({ 
+        const templatesResult = await chrome.storage.local.get({ 
             templates: []
         });
         
@@ -80,21 +80,23 @@ class CtrlSpaceHelper {
     renderTemplates(templates = this.templates) {
         const templatesList = this.shadowRoot.querySelector('#templatesList');
 
-        templatesList.innerHTML = templates.length > 0 ? templates.map((template, index) => `
-            <div class="template-item" data-index="${index}">
-                <div class="header">
-                    <div class="name">${template?.name || 'Unnamed'}</div>
-                </div>
-
-                ${template.description ? `<div class="description">${template?.description}</div>` : ''}
-
-                ${template.tags && template.tags.length > 0 ? `
-                    <div class="tags">
-                        ${template.tags.map(tag => `<div>${tag}</div>`).join('')}
+        templatesList.innerHTML = templates.length > 0 ? templates.map((template, index) => {
+            return `
+                <div class="template-item" data-index="${index}" data-id="${template.id}">
+                    <div class="header">
+                        <div class="name">${template?.name || 'Unnamed'}</div>
                     </div>
-                ` : ''}
-            </div>
-        `).join('') : `
+
+                    ${template.description ? `<div class="description">${template?.description}</div>` : ''}
+
+                    ${template.tags && template.tags.length > 0 ? `
+                        <div class="tags">
+                            ${template.tags.map(tag => `<div>${tag}</div>`).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }).join('') : `
             <div class="empty-state">
                 <p>No snippets yet</p>
                 <small>Create your first snippet in the popup</small>
@@ -216,10 +218,12 @@ class CtrlSpaceHelper {
 
         // if (items.length === 0) return;
 
+        let currentId = -1;
         let currentIndex = -1;
 
         items.forEach((item, index) => {
             if (item.classList.contains('selected')) {
+                currentId = item.getAttribute('data-id');
                 currentIndex = index;
             }
         });
@@ -246,7 +250,7 @@ class CtrlSpaceHelper {
                 e.stopPropagation();
                 e.stopImmediatePropagation();
                 if (currentIndex !== -1) {
-                    this.selectTemplate(currentIndex);
+                    this.selectTemplate(currentId);
                 } else {
                     this.selectTemplateItem(items, 0);
                 }
@@ -368,11 +372,11 @@ class CtrlSpaceHelper {
             };
 
             // Сохраняем в хранилище
-            const result = await chrome.storage.sync.get({ templates: [] });
+            const result = await chrome.storage.local.get({ templates: [] });
             const templates = result.templates || [];
             templates.unshift(template);
             
-            await chrome.storage.sync.set({ templates });
+            await chrome.storage.local.set({ templates });
             
             // Обновляем список шаблонов
             await this.loadSettingsAndTemplates();
@@ -484,11 +488,11 @@ class CtrlSpaceHelper {
         range.insertNode(document.createTextNode(newText));
     }
 
-    selectTemplate(index) {
-        const template = this.templates[index];
+    selectTemplate(templateId) {
+        const template = this.templates.find(t => t.id === templateId);
         if (template && this.currentInput) {
-        this.insertTemplate(template);
-        this.hideHelper();
+            this.insertTemplate(template);
+            this.hideHelper();
         }
     }
 
@@ -588,6 +592,7 @@ class CtrlSpaceHelper {
         
         this.isVisible = false;
         this.helperDiv.style.display = 'none';
+        this.helperDiv.querySelector('.search span').textContent = '';
         this.currentInput = null;
     }
 

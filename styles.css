@@ -37,8 +37,9 @@
 
 .templates-list {
     max-height: 50vh;
-    overflow-y: auto;
+    overflow-x: hidden;
     flex: 1;
+    max-height: calc(400px - 32px);
 }
 
 .template-item {

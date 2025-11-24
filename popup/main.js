@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 async function loadTemplates() {
-  const result = await chrome.storage.sync.get({
+  const result = await chrome.storage.local.get({
     templates: []
   });
   
@@ -25,12 +25,13 @@ function bindEvents() {
   document.getElementById('cancelEdit').addEventListener('click', cancelEdit);
   
   // Tags input
-  document.getElementById('templateTags').addEventListener('keypress', (e) => {
+  document.getElementById('editTags').addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       const tag = e.target.value.trim();
-      if (tag && !currentTags.includes(tag)) {
-        currentTags.push(tag);
+      if (tag && !currentEditTags.includes(tag)) {
+        currentEditTags.push(tag);
+        console.log(`Added tag 1`, tag)
         renderTags();
         e.target.value = '';
       }
@@ -71,8 +72,6 @@ function bindEvents() {
   });
 
   // Footer buttons
-  document.getElementById('themeToggle').addEventListener('click', toggleTheme);
-  document.getElementById('helpBtn').addEventListener('click', showHelp);
 
   document.getElementById('closeEdit').addEventListener('click', closeEditModal);
   document.getElementById('cancelEdit').addEventListener('click', closeEditModal);
@@ -86,6 +85,7 @@ function bindEvents() {
       const tag = e.target.value.trim();
       if (tag && !currentEditTags.includes(tag)) {
         currentEditTags.push(tag);
+        console.log('Added tag 2', tag)
         renderEditTags();
         e.target.value = '';
       }
@@ -94,25 +94,38 @@ function bindEvents() {
 }
 
 function renderTags() {
-  const tagsList = document.getElementById('tagsList');
-  tagsList.innerHTML = currentTags.map((tag, index) => `
-    <span class="tag">
-      ${escapeHtml(tag)}
-      <button type="button" class="tag-remove" onclick="removeTag(${index})">×</button>
-    </span>
-  `).join('');
+  const tagsList = document.getElementById('editTagsList');
+  
+  tagsList.innerHTML = '';
+
+  currentEditTags.forEach((t, index) => {
+    const tag = document.createElement('span');
+    tag.className = 'tag';
+    
+    tag.innerHTML = `${escapeHtml(t)}`;
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'tag-remove';
+    btn.innerHTML = 'x';
+    btn.onclick = () => removeTag(index);
+
+    tag.appendChild(btn);
+
+    tagsList.appendChild(tag);
+  });
 }
 
 function removeTag(index) {
-  currentTags.splice(index, 1);
+  currentEditTags.splice(index, 1);
   renderTags();
 }
 
 async function saveSnippet() {
-  const name = document.getElementById('templateName').value.trim();
-  const shortcut = document.getElementById('shortcutInput').value.trim();
-  const description = document.getElementById('templateDescription').value.trim();
-  const text = document.getElementById('snippetText').value.trim();
+  const name = document.getElementById('editName').value.trim();
+  const shortcut = document.getElementById('editShortcut').value.trim();
+  const description = document.getElementById('editDescription').value.trim();
+  const text = document.getElementById('editContent').value.trim();
 
   if (!name || !shortcut || !text) {
     alert('Please fill in required fields: Name, Shortcut, and Content');
@@ -133,7 +146,7 @@ async function saveSnippet() {
       hasStyle: text.includes('**') || text.includes('*') // Simple style detection
     };
 
-    const result = await chrome.storage.sync.get({ templates: [] });
+    const result = await chrome.storage.local.get({ templates: [] });
     const templates = result.templates || [];
     
     if (editingIndex !== -1) {
@@ -153,7 +166,7 @@ async function saveSnippet() {
       }
     }
     
-    await chrome.storage.sync.set({ templates });
+    await chrome.storage.local.set({ templates });
     
     // Clear form
     clearForm();
@@ -176,10 +189,10 @@ async function saveSnippet() {
 }
 
 function clearForm() {
-  document.getElementById('templateName').value = '';
-  document.getElementById('shortcutInput').value = '';
-  document.getElementById('templateDescription').value = '';
-  document.getElementById('snippetText').value = '';
+  document.getElementById('editName').value = '';
+  document.getElementById('editShortcut').value = '';
+  document.getElementById('editDescription').value = '';
+  document.getElementById('editContent').value = '';
   currentTags = [];
   renderTags();
   editingIndex = -1;
@@ -192,7 +205,7 @@ function cancelEdit() {
 }
 
 async function useTemplate(index) {
-  const result = await chrome.storage.sync.get({ templates: [] });
+  const result = await chrome.storage.local.get({ templates: [] });
   const template = result.templates[index];
   
   if (template) {
@@ -281,7 +294,7 @@ function renderTemplates(templates) {
 
 // Обновите функцию editTemplate (старую переименуйте или замените)
 function editTemplate(index) {
-  chrome.storage.sync.get({ templates: [] }, (result) => {
+  chrome.storage.local.get({ templates: [] }, (result) => {
     const template = result.templates[index];
     if (template) {
       openEditModal(template);
@@ -293,13 +306,13 @@ function editTemplate(index) {
 async function deleteTemplate(index) {
   if (!confirm('Are you sure you want to delete this template?')) return;
   
-  const result = await chrome.storage.sync.get({ templates: [] });
+  const result = await chrome.storage.local.get({ templates: [] });
   const templates = result.templates || [];
   const templateToDelete = templates[index];
   
   templates.splice(index, 1);
   
-  await chrome.storage.sync.set({ templates });
+  await chrome.storage.local.set({ templates });
   await loadTemplates();
   updateSnippetsCount();
   loadTagFilter();
@@ -319,7 +332,7 @@ function searchTemplates(query) {
     return;
   }
   
-  chrome.storage.sync.get({ templates: [] }, (result) => {
+  chrome.storage.local.get({ templates: [] }, (result) => {
     const templates = result.templates || [];
     const filtered = templates.filter(template => 
       template.name?.toLowerCase().includes(query.toLowerCase()) ||
@@ -365,7 +378,7 @@ function searchTemplates(query) {
 }
 
 function loadTagFilter() {
-  chrome.storage.sync.get({ templates: [] }, (result) => {
+  chrome.storage.local.get({ templates: [] }, (result) => {
     const templates = result.templates || [];
     const allTags = new Set();
     
@@ -395,7 +408,7 @@ function loadTagFilter() {
 }
 
 async function showExportData() {
-  const result = await chrome.storage.sync.get({ templates: [] });
+  const result = await chrome.storage.local.get({ templates: [] });
   const exportData = document.getElementById('exportData');
   exportData.value = JSON.stringify(result.templates, null, 2);
 }
@@ -410,7 +423,7 @@ function handleImport(event) {
       const importedData = JSON.parse(e.target.result);
       
       if (Array.isArray(importedData)) {
-        const result = await chrome.storage.sync.get({ templates: [] });
+        const result = await chrome.storage.local.get({ templates: [] });
         const templates = result.templates || [];
         
         // Merge templates, avoid duplicates by ID or shortcut
@@ -427,7 +440,7 @@ function handleImport(event) {
           }
         });
         
-        await chrome.storage.sync.set({ templates });
+        await chrome.storage.local.set({ templates });
         await loadTemplates();
         updateSnippetsCount();
         loadTagFilter();
@@ -463,7 +476,7 @@ function showHelp() {
 }
 
 function updateSnippetsCount() {
-  chrome.storage.sync.get({ templates: [] }, (result) => {
+  chrome.storage.local.get({ templates: [] }, (result) => {
     document.getElementById('snippetsCount').textContent = result.templates.length;
   });
 }
@@ -512,7 +525,7 @@ async function saveTemplateEdit() {
   }
 
   try {
-    const result = await chrome.storage.sync.get({ templates: [] });
+    const result = await chrome.storage.local.get({ templates: [] });
     const templates = result.templates || [];
     
     const templateIndex = templates.findIndex(t => t.id === editingTemplateId);
@@ -533,7 +546,9 @@ async function saveTemplateEdit() {
       updatedAt: new Date().toISOString()
     };
 
-    await chrome.storage.sync.set({ templates });
+    await chrome.storage.local.set({ templates });
+
+    console.log(templates, templateIndex, currentEditTags)
     
     // Обновляем отображение
     await loadTemplates();
@@ -564,11 +579,11 @@ async function deleteCurrentTemplate() {
   }
 
   try {
-    const result = await chrome.storage.sync.get({ templates: [] });
+    const result = await chrome.storage.local.get({ templates: [] });
     const templates = result.templates || [];
     
     const updatedTemplates = templates.filter(t => t.id !== editingTemplateId);
-    await chrome.storage.sync.set({ templates: updatedTemplates });
+    await chrome.storage.local.set({ templates: updatedTemplates });
     
     // Обновляем отображение
     await loadTemplates();
@@ -595,12 +610,25 @@ async function deleteCurrentTemplate() {
 // Функция отображения тегов в модальном окне редактирования
 function renderEditTags() {
   const tagsList = document.getElementById('editTagsList');
-  tagsList.innerHTML = currentEditTags.map((tag, index) => `
-    <span class="tag">
-      ${escapeHtml(tag)}
-      <button type="button" class="tag-remove" onclick="removeEditTag(${index})">×</button>
-    </span>
-  `).join('');
+  
+  tagsList.innerHTML = '';
+
+  currentEditTags.forEach((t, index) => {
+    const tag = document.createElement('span');
+    tag.className = 'tag';
+    
+    tag.innerHTML = `${escapeHtml(t)}`;
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'tag-remove';
+    btn.innerHTML = 'x';
+    btn.onclick = () => removeTag(index);
+
+    tag.appendChild(btn);
+
+    tagsList.appendChild(tag);
+  });
 }
 
 // Функция удаления тега в модальном окне редактирования
