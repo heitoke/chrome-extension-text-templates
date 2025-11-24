@@ -9,7 +9,7 @@
     "contextMenus"
   ],
   "action": {
-    "default_popup": "popup.html",
+    "default_popup": "popup/index.html",
     "default_title": "Text Templates - Options"
   },
   "background": {
@@ -19,8 +19,13 @@
     {
       "matches": ["<all_urls>"],
       "js": ["content.js"],
-      "css": ["styles.css"],
       "run_at": "document_end"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["styles.css"],
+      "matches": ["<all_urls>"]
     }
   ],
   "icons": {

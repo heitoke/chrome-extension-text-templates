@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <main>
+        <!-- Header -->
+        <header class="header">
+            <h1>Text Shortcuts</h1>
+
+            <div class="actions">
+                <button id="exportBtn" title="Экспорт/Импорт">📤</button>
+                <button id="searchBtn" title="Поиск">🔍</button>
+            </div>
+        </header>
+
+        <div class="toolbar">
+            <button type="button" id="saveSnippet" class="save-btn">Новый шаблон</button>
+        
+            <div style="margin-left: auto;"></div>
+
+            <div class="section-controls">
+                <span class="snippets-count" id="snippetsCount">0</span>
+
+                <select id="filterTags" class="filter-select">
+                    <option value="">All tags</option>
+                </select>
+            </div>
+
+            <div class="search">
+                <input type="text">
+            </div>
+        </div>
+
+        <div class="templates-list" id="templatesList"></div>
+
+        <!-- Search Modal -->
+        <div class="modal" id="searchModal">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h3>Search Snippets</h3>
+            <button class="close-modal" id="closeSearch">×</button>
+            </div>
+            <input type="text" id="searchInput" placeholder="Search by name, description, tags, or content..." class="search-input">
+            <div class="search-results" id="searchResults"></div>
+        </div>
+        </div>
+
+        <!-- Export Modal -->
+        <div class="modal" id="exportModal">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h3>Export / Import</h3>
+            <button class="close-modal" id="closeExport">×</button>
+            </div>
+            <div class="export-actions">
+            <button id="exportAllBtn" class="export-import-btn">Export All</button>
+            <button id="importBtn" class="export-import-btn">Import</button>
+            <input type="file" id="importFile" accept=".json" style="display: none;">
+            </div>
+            <textarea id="exportData" class="export-textarea" placeholder="Exported data will appear here..."></textarea>
+        </div>
+        </div>
+
+        <!-- Edit Template Modal -->
+        <div class="modal" id="editModal">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h3>Edit Snippet</h3>
+            <button class="close-modal" id="closeEdit">×</button>
+            </div>
+            <div class="modal-body">
+            <div class="form-group">
+                <label for="editName">Name *</label>
+                <input type="text" id="editName" placeholder="e.g.: Thank You Response" class="form-input">
+            </div>
+            <div class="form-group">
+                <label for="editShortcut">Shortcut *</label>
+                <input type="text" id="editShortcut" placeholder="e.g.: ty" class="form-input">
+            </div>
+            <div class="form-group">
+                <label for="editDescription">Description</label>
+                <input type="text" id="editDescription" placeholder="Brief description of this template..." class="form-input">
+            </div>
+            <div class="form-group">
+                <label for="editTags">Tags</label>
+                <div class="tags-input-container">
+                <input type="text" id="editTags" placeholder="Type tag and press Enter..." class="form-input">
+                <div class="tags-list" id="editTagsList"></div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="editContent">Content *</label>
+                <textarea id="editContent" placeholder="Your template content..." class="form-textarea"></textarea>
+            </div>
+            </div>
+            <div class="modal-footer">
+            <button type="button" id="deleteTemplate" class="delete-btn">Delete</button>
+            <div class="modal-actions">
+                <button type="button" id="cancelEdit" class="cancel-btn">Cancel</button>
+                <button type="button" id="saveEdit" class="save-btn">Save Changes</button>
+            </div>
+            </div>
+        </div>
+        </div>
+    </main>
+
+    <script src="main.js"></script>
+</body>
+</html>
