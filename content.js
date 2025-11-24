@@ -509,9 +509,9 @@ class CtrlSpaceHelper {
                 this.insertText(template.text || template.html);
             }
         } catch (error) {
-        console.error('Ошибка при вставке шаблона:', error);
-        // Fallback: вставляем как простой текст
-        this.insertText(template.text || template.html);
+            console.error('Ошибка при вставке шаблона:', error);
+            // Fallback: вставляем как простой текст
+            this.insertText(template.text || template.html);
         }
     }
 
@@ -583,7 +583,18 @@ class CtrlSpaceHelper {
         // Фокус на input после показа helper
         setTimeout(() => {
             if (this.currentInput) {
+                const selection = window.getSelection();
+                
+                // if (selection.rangeCount > 0) {
+                //     const range = selection.getRangeAt(0);
+                //     const preCaretRange = range.cloneRange();
+                //     preCaretRange.selectNodeContents(editableDiv);
+                //     preCaretRange.setEnd(range.endContainer, range.endOffset);
+                //     const position = preCaretRange.toString().length;
+                //     // console.log(this.currentInput, position)
+                // }
                 let a = this.helperDiv.querySelector('.search input');
+
 
                 a.focus();
 
