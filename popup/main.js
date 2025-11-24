@@ -25,12 +25,13 @@ function bindEvents() {
   document.getElementById('cancelEdit').addEventListener('click', cancelEdit);
   
   // Tags input
-  document.getElementById('templateTags').addEventListener('keypress', (e) => {
+  document.getElementById('editTags').addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       const tag = e.target.value.trim();
-      if (tag && !currentTags.includes(tag)) {
-        currentTags.push(tag);
+      if (tag && !currentEditTags.includes(tag)) {
+        currentEditTags.push(tag);
+        console.log(`Added tag 1`, tag)
         renderTags();
         e.target.value = '';
       }
@@ -71,8 +72,6 @@ function bindEvents() {
   });
 
   // Footer buttons
-  document.getElementById('themeToggle').addEventListener('click', toggleTheme);
-  document.getElementById('helpBtn').addEventListener('click', showHelp);
 
   document.getElementById('closeEdit').addEventListener('click', closeEditModal);
   document.getElementById('cancelEdit').addEventListener('click', closeEditModal);
@@ -86,6 +85,7 @@ function bindEvents() {
       const tag = e.target.value.trim();
       if (tag && !currentEditTags.includes(tag)) {
         currentEditTags.push(tag);
+        console.log('Added tag 2', tag)
         renderEditTags();
         e.target.value = '';
       }
@@ -94,25 +94,38 @@ function bindEvents() {
 }
 
 function renderTags() {
-  const tagsList = document.getElementById('tagsList');
-  tagsList.innerHTML = currentTags.map((tag, index) => `
-    <span class="tag">
-      ${escapeHtml(tag)}
-      <button type="button" class="tag-remove" onclick="removeTag(${index})">×</button>
-    </span>
-  `).join('');
+  const tagsList = document.getElementById('editTagsList');
+  
+  tagsList.innerHTML = '';
+
+  currentEditTags.forEach((t, index) => {
+    const tag = document.createElement('span');
+    tag.className = 'tag';
+    
+    tag.innerHTML = `${escapeHtml(t)}`;
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'tag-remove';
+    btn.innerHTML = 'x';
+    btn.onclick = () => removeTag(index);
+
+    tag.appendChild(btn);
+
+    tagsList.appendChild(tag);
+  });
 }
 
 function removeTag(index) {
-  currentTags.splice(index, 1);
+  currentEditTags.splice(index, 1);
   renderTags();
 }
 
 async function saveSnippet() {
-  const name = document.getElementById('templateName').value.trim();
-  const shortcut = document.getElementById('shortcutInput').value.trim();
-  const description = document.getElementById('templateDescription').value.trim();
-  const text = document.getElementById('snippetText').value.trim();
+  const name = document.getElementById('editName').value.trim();
+  const shortcut = document.getElementById('editShortcut').value.trim();
+  const description = document.getElementById('editDescription').value.trim();
+  const text = document.getElementById('editContent').value.trim();
 
   if (!name || !shortcut || !text) {
     alert('Please fill in required fields: Name, Shortcut, and Content');
@@ -176,10 +189,10 @@ async function saveSnippet() {
 }
 
 function clearForm() {
-  document.getElementById('templateName').value = '';
-  document.getElementById('shortcutInput').value = '';
-  document.getElementById('templateDescription').value = '';
-  document.getElementById('snippetText').value = '';
+  document.getElementById('editName').value = '';
+  document.getElementById('editShortcut').value = '';
+  document.getElementById('editDescription').value = '';
+  document.getElementById('editContent').value = '';
   currentTags = [];
   renderTags();
   editingIndex = -1;
@@ -534,6 +547,8 @@ async function saveTemplateEdit() {
     };
 
     await chrome.storage.sync.set({ templates });
+
+    console.log(templates, templateIndex, currentEditTags)
     
     // Обновляем отображение
     await loadTemplates();
@@ -595,12 +610,25 @@ async function deleteCurrentTemplate() {
 // Функция отображения тегов в модальном окне редактирования
 function renderEditTags() {
   const tagsList = document.getElementById('editTagsList');
-  tagsList.innerHTML = currentEditTags.map((tag, index) => `
-    <span class="tag">
-      ${escapeHtml(tag)}
-      <button type="button" class="tag-remove" onclick="removeEditTag(${index})">×</button>
-    </span>
-  `).join('');
+  
+  tagsList.innerHTML = '';
+
+  currentEditTags.forEach((t, index) => {
+    const tag = document.createElement('span');
+    tag.className = 'tag';
+    
+    tag.innerHTML = `${escapeHtml(t)}`;
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'tag-remove';
+    btn.innerHTML = 'x';
+    btn.onclick = () => removeTag(index);
+
+    tag.appendChild(btn);
+
+    tagsList.appendChild(tag);
+  });
 }
 
 // Функция удаления тега в модальном окне редактирования
