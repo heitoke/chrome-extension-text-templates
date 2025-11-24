@@ -50,10 +50,10 @@ class CtrlSpaceHelper {
         this.helperDiv.className = 'tt-dropdown-container';
         this.helperDiv.innerHTML = `
             <div class="content">
-                <div class="search">
-                    🔍
-                    <span></span>
-                </div>
+                <label class="search">
+                    <span>🔍</span>
+                    <input type="text">
+                </label>
 
                 <div class="templates-list" id="templatesList"></div>
             </div>
@@ -269,69 +269,69 @@ class CtrlSpaceHelper {
                 e.stopImmediatePropagation();
                 break;
 
-            case 'Backspace':
-                // e.preventDefault();
-                // e.stopPropagation();
-                this.handleBackspace();
-                break;
+            // case 'Backspace':
+            //     // e.preventDefault();
+            //     // e.stopPropagation();
+            //     this.handleBackspace();
+            //     break;
 
             default:
-                if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
-                    this.handleTextInput(e.key);
-                }
+                // if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
+                //     this.handleTextInput(e.key);
+                // }
                 break;
         }
     }
 
     handleTextInput(char) {
-        const searchInput = this.shadowRoot.querySelector('.search span');
+        // const searchInput = this.shadowRoot.querySelector('.search span');
         
-        // Добавляем символ в поле поиска
-        searchInput.textContent += char;
+        // // Добавляем символ в поле поиска
+        // searchInput.textContent += char;
         
-        // Фильтруем шаблоны
-        // this.filterTemplates(searchInput.value);
-        const r = new RegExp(searchInput.textContent, 'gi');
+        // // Фильтруем шаблоны
+        // // this.filterTemplates(searchInput.value);
+        // const r = new RegExp(searchInput.textContent, 'gi');
 
-        this.renderTemplates([...this.templates].filter(t => {
-            return r.test(t?.name) || r.test(t?.description) || r.test(t?.shortcut) || r.test(t?.text) || (t?.tags && t?.tags?.some(tag => r.test(tag)));
-        }));
+        // this.renderTemplates([...this.templates].filter(t => {
+        //     return r.test(t?.name) || r.test(t?.description) || r.test(t?.shortcut) || r.test(t?.text) || (t?.tags && t?.tags?.some(tag => r.test(tag)));
+        // }));
         
-        // Авто-выбор первого элемента после фильтрации
-        setTimeout(() => {
-            const firstItem = this.shadowRoot.querySelector('.template-item');
-            if (firstItem) {
-                firstItem.classList.add('selected');
-            }
-        }, 0);
+        // // Авто-выбор первого элемента после фильтрации
+        // setTimeout(() => {
+        //     const firstItem = this.shadowRoot.querySelector('.template-item');
+        //     if (firstItem) {
+        //         firstItem.classList.add('selected');
+        //     }
+        // }, 0);
     }
 
     handleBackspace() {
-        const searchInput = this.shadowRoot.querySelector('.search span');
+        // const searchInput = this.shadowRoot.querySelector('.search span');
         
-        if (searchInput.textContent.length > 0) {
-            // Удаляем последний символ
-            searchInput.textContent = searchInput.textContent.slice(0, -1);
+        // if (searchInput.textContent.length > 0) {
+        //     // Удаляем последний символ
+        //     searchInput.textContent = searchInput.textContent.slice(0, -1);
             
-            // Фильтруем шаблоны с обновленным запросом
-            // this.filterTemplates(searchInput.value);
-            const r = new RegExp(searchInput.textContent, 'gi');
+        //     // Фильтруем шаблоны с обновленным запросом
+        //     // this.filterTemplates(searchInput.value);
+        //     const r = new RegExp(searchInput.textContent, 'gi');
 
-            this.renderTemplates([...this.templates].filter(t => {
-                return r.test(t?.name) || r.test(t?.description) || r.test(t?.shortcut) || r.test(t?.text) || (t?.tags && t?.tags?.some(tag => r.test(tag)));
-            }));
+        //     this.renderTemplates([...this.templates].filter(t => {
+        //         return r.test(t?.name) || r.test(t?.description) || r.test(t?.shortcut) || r.test(t?.text) || (t?.tags && t?.tags?.some(tag => r.test(tag)));
+        //     }));
             
-            // Авто-выбор первого элемента после фильтрации
-            setTimeout(() => {
-                const firstItem = this.shadowRoot.querySelector('.template-item');
-                if (firstItem) {
-                    firstItem.classList.add('selected');
-                }
-            }, 0);
-        } else {
-            // Если строка поиска пустая, скрываем меню
-            this.hideHelper();
-        }
+        //     // Авто-выбор первого элемента после фильтрации
+        //     setTimeout(() => {
+        //         const firstItem = this.shadowRoot.querySelector('.template-item');
+        //         if (firstItem) {
+        //             firstItem.classList.add('selected');
+        //         }
+        //     }, 0);
+        // } else {
+        //     // Если строка поиска пустая, скрываем меню
+        //     this.hideHelper();
+        // }
     }
 
     selectTemplateItem(items, index) {
@@ -500,13 +500,14 @@ class CtrlSpaceHelper {
         if (!this.currentInput) return;
         
         try {
-        // Всегда пытаемся вставить HTML с форматированием
-        if (template.html && this.currentInput.isContentEditable) {
-            this.insertHtml(template.html);
-        } else {
-            // Fallback: вставляем чистый текст
-            this.insertText(template.text || template.html);
-        }
+            this.currentInput?.focus();
+            // Всегда пытаемся вставить HTML с форматированием
+            if (template.html && this.currentInput.isContentEditable) {
+                this.insertHtml(template.html);
+            } else {
+                // Fallback: вставляем чистый текст
+                this.insertText(template.text || template.html);
+            }
         } catch (error) {
         console.error('Ошибка при вставке шаблона:', error);
         // Fallback: вставляем как простой текст
@@ -582,7 +583,25 @@ class CtrlSpaceHelper {
         // Фокус на input после показа helper
         setTimeout(() => {
             if (this.currentInput) {
-                this.currentInput.focus();
+                let a = this.helperDiv.querySelector('.search input');
+
+                a.focus();
+
+                a.addEventListener('input', e => {
+                    const r = new RegExp(e.target.value, 'gi');
+
+                    this.renderTemplates([...this.templates].filter(t => {
+                        return r.test(t?.name) || r.test(t?.description) || r.test(t?.shortcut) || r.test(t?.text) || (t?.tags && t?.tags?.some(tag => r.test(tag)));
+                    }));
+                    
+                    setTimeout(() => {
+                        const firstItem = this.shadowRoot.querySelector('.template-item');
+
+                        if (firstItem) {
+                            firstItem.classList.add('selected');
+                        }
+                    }, 0);
+                });
             }
         }, 0);
     }
@@ -592,7 +611,9 @@ class CtrlSpaceHelper {
         
         this.isVisible = false;
         this.helperDiv.style.display = 'none';
-        this.helperDiv.querySelector('.search span').textContent = '';
+        // this.helperDiv.querySelector('.search span').textContent = '';
+        this.helperDiv.querySelector('.search input').value = '';
+        this.currentInput?.focus();
         this.currentInput = null;
     }
 
@@ -717,19 +738,19 @@ class CtrlSpaceHelper {
         let newTop = parseInt(this.helperHost.style.top);
         
         if (helperRect.right > viewportWidth) {
-        newLeft = viewportWidth - helperRect.width - 10;
+            newLeft = viewportWidth - helperRect.width - 10;
         }
         
         if (helperRect.left < 0) {
-        newLeft = 10;
+            newLeft = 10;
         }
         
         if (helperRect.bottom > viewportHeight) {
-        newTop = viewportHeight - helperRect.height - 10;
+            newTop = viewportHeight - helperRect.height - 10;
         }
         
         if (helperRect.top < 0) {
-        newTop = 10;
+            newTop = 10;
         }
         
         const scrollX = window.pageXOffset;
@@ -749,9 +770,9 @@ class CtrlSpaceHelper {
         
         // Автоматически удаляем через 3 секунды
         setTimeout(() => {
-        if (notification.parentNode) {
-            notification.parentNode.removeChild(notification);
-        }
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
         }, 3000);
     }
 
