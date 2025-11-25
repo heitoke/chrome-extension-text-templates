@@ -80,9 +80,16 @@ class CtrlSpaceHelper {
     renderTemplates(templates = this.templates) {
         const templatesList = this.shadowRoot.querySelector('#templatesList');
 
-        templatesList.innerHTML = templates.length > 0 ? templates.map((template, index) => {
-            return `
-                <div class="template-item" data-index="${index}" data-id="${template.id}">
+        templatesList.innerHTML = '';
+
+        if (templates.length > 0) {
+            templates.forEach((template, index) => {
+                const el = document.createElement('div');
+                el.className = 'template-item';
+                el.setAttribute('data-index', String(index));
+                el.setAttribute('data-id', String(template.id));
+
+                el.innerHTML = `
                     <div class="header">
                         <div class="name">${template?.name || 'Unnamed'}</div>
                     </div>
@@ -94,23 +101,22 @@ class CtrlSpaceHelper {
                             ${template.tags.map(tag => `<div>${tag}</div>`).join('')}
                         </div>
                     ` : ''}
+                `;
+
+                el.addEventListener('click', () => {
+                    this.selectTemplate(template.id);
+                })
+
+                templatesList.appendChild(el);
+            });
+        } else {
+            templatesList.innerHTML = `
+                <div class="empty-state">
+                    <p>No snippets yet</p>
+                    <small>Create your first snippet in the popup</small>
                 </div>
             `;
-        }).join('') : `
-            <div class="empty-state">
-                <p>No snippets yet</p>
-                <small>Create your first snippet in the popup</small>
-            </div>
-        `;
-
-        // Добавляем обработчики клика
-        templatesList.querySelectorAll('.template-item').forEach(item => {
-            item.addEventListener('click', () => {
-                const index = parseInt(item.dataset.index);
-
-                this.selectTemplate(index);
-            });
-        });
+        }
     }
 
     getTemplatePreview(template) {
@@ -530,6 +536,7 @@ class CtrlSpaceHelper {
         if (!this.currentInput) return;
         
         try {
+            console.log('set position', this.aaa)
             if (this.aaa > 0) this.setCursorAtPosition(this.currentInput, this.aaa);
             else this.currentInput?.focus();
             
