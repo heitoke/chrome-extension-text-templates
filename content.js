@@ -496,11 +496,43 @@ class CtrlSpaceHelper {
         }
     }
 
+    setCursorAtPosition(element, position) {
+        const range = document.createRange();
+        const selection = window.getSelection();
+        const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null, false);
+
+        let currentNode;
+        let currentPosition = 0;
+
+        // Находим нужный текстовый узел и позицию внутри него
+        while (currentNode = walker.nextNode()) {
+            const nodeLength = currentNode.nodeValue.length;
+
+            // Проверяем, попадает ли искомая позиция в текущий узел
+            if (currentPosition + nodeLength >= position) {
+                // Устанавливаем диапазон на найденный узел и позицию
+                range.setStart(currentNode, position - currentPosition);
+                range.collapse(true); // Установка курсора
+                break;
+            }
+            
+            currentPosition += nodeLength;
+        }
+
+        // Если найден узел и диапазон, устанавливаем курсор
+        if (selection.rangeCount > 0) {
+            selection.removeAllRanges();
+        }
+        selection.addRange(range);
+    }
+
     insertTemplate(template) {
         if (!this.currentInput) return;
         
         try {
-            this.currentInput?.focus();
+            if (this.aaa > 0) this.setCursorAtPosition(this.currentInput, this.aaa);
+            else this.currentInput?.focus();
+            
             // Всегда пытаемся вставить HTML с форматированием
             if (template.html && this.currentInput.isContentEditable) {
                 this.insertHtml(template.html);
@@ -562,6 +594,8 @@ class CtrlSpaceHelper {
         }
     }
 
+    aaa = 0;
+
     showHelper() {
         if (!this.helperDiv) return;
         
@@ -585,14 +619,15 @@ class CtrlSpaceHelper {
             if (this.currentInput) {
                 const selection = window.getSelection();
                 
-                // if (selection.rangeCount > 0) {
-                //     const range = selection.getRangeAt(0);
-                //     const preCaretRange = range.cloneRange();
-                //     preCaretRange.selectNodeContents(editableDiv);
-                //     preCaretRange.setEnd(range.endContainer, range.endOffset);
-                //     const position = preCaretRange.toString().length;
-                //     // console.log(this.currentInput, position)
-                // }
+                if (selection.rangeCount > 0) {
+                    const range = selection.getRangeAt(0);
+                    const preCaretRange = range.cloneRange();
+                    preCaretRange.selectNodeContents(this.currentInput);
+                    preCaretRange.setEnd(range.endContainer, range.endOffset);
+                    const position = preCaretRange.toString().length;
+                    console.log(this.currentInput, position)
+                    this.aaa = position;
+                }
                 let a = this.helperDiv.querySelector('.search input');
 
 
